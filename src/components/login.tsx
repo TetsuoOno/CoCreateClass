@@ -59,7 +59,8 @@ const Login: React.FC = () => {
                         userID: user.uid,
                         userName: name,
                     }
-                    fireStore.collection('users').doc(user.uid).set(userData).catch(e => console.error(e))
+                    fireStore.collection('users').doc(user.uid).set(userData).then(() => console.log('こんにちは、', userData.userName)
+                    ).catch(e => console.error(e))
                 }
             })
         }).catch(err=>console.error(err))
