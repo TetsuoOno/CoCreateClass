@@ -19,6 +19,5 @@ export type  Course = {
 export type Question = {
     id: string;
     title: string;
-
+    correctAnswer: number;
 }
-
