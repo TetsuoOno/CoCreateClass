@@ -86,7 +86,6 @@ const QuestionPage: React.FC = () => {
             setResultComment("正解！　次の問題も頑張ろう！")
             setIsCorrect(true);
             setOpen(true);
-
         } else {
             setResultComment("残念　もう一度見直してみよう！")
             setIsCorrect(false);
