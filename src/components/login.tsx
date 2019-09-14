@@ -63,6 +63,7 @@ const Login: React.FC<historyProps> = props => {
                 if(doc.exists){
                     const userData = doc.data() as User
                     console.log('こんにちは、', userData.userName)
+                    login(userData)
                 }else{
                     const userData : User = {
                         userID: user.uid,
@@ -70,8 +71,8 @@ const Login: React.FC<historyProps> = props => {
                     }
                     fireStore.collection('users').doc(user.uid).set(userData).then(() => console.log('こんにちは、', userData.userName)
                     ).catch(e => console.error(e))
+                    login(userData)
                 }
-                login(userData)
                 props.history.push('/class')
             })
         }).catch(err=>console.error(err))
