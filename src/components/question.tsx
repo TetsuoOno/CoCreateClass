@@ -91,8 +91,8 @@ const QuestionPage: React.FC<historyProps>= (props : historyProps) => {
         }).catch(err => console.error(err))
     }
     const checkAnswer = () => {
-        console.log(parseInt(answer) == question.correctAnswer)
         if (parseInt(answer) == question.correctAnswer) {
+
             console.log("正解！")
             console.log(question.id)
             fireStore.collection(questionIndex).doc(question.id).get().then(
