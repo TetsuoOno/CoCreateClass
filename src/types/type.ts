@@ -3,7 +3,7 @@ export type User = {
     userName: string;
 }
 
-export type  Course = {
+export type Course = {
     className: string,
     classDate: string,
     classTime: string,
@@ -20,7 +20,7 @@ export type  Course = {
 export type Question = {
     id: string;
     title: string;
-    correctAnswer: number;
+    correctAnswer: string;
     correctAnswers: number;
 }
 
