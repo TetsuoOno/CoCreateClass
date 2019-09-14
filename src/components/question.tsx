@@ -66,7 +66,7 @@ const QuestionPage: React.FC = () => {
         }).catch(err => console.error(err))
     }
     const checkAnswer = () => {
-        if (parseFloat(answer) === question.correctAnswer) {
+        if (parseFloat(answer) == question.correctAnswer) {
             console.log("正解！")
         } else {
             console.log("間違い")
