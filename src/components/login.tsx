@@ -12,7 +12,8 @@ import LockOutlinedIcon from '@material-ui/icons/LockOutlined';
 import Typography from '@material-ui/core/Typography';
 import { makeStyles } from '@material-ui/core/styles';
 import Container from '@material-ui/core/Container';
-import { auth } from '../firebase/firebase';
+import { auth, fireStore, userIndex } from '../firebase/firebase';
+import { User } from '../types/type';
 
 const useStyles = makeStyles(theme => ({
     '@global': {
@@ -48,7 +49,19 @@ const Login: React.FC = () => {
     }
     const LoginWithFirebase = () => {
         auth.signInAnonymously().then(e => {
-            console.log(e)
+            const user = e.user as firebase.User
+            fireStore.collection(userIndex).doc(user.uid).get().then(doc => {
+                if(doc.exists){
+                    const userData = doc.data() as User
+                    console.log('こんにちは、', userData.userName)
+                }else{
+                    const userData : User = {
+                        userID: user.uid,
+                        userName: name,
+                    }
+                    fireStore.collection('users').doc(user.uid).set(userData).catch(e => console.error(e))
+                }
+            })
         }).catch(err=>console.error(err))
     }
 
