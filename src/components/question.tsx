@@ -83,10 +83,10 @@ const QuestionPage: React.FC<historyProps>= (props : historyProps) => {
     const dispatch = useDispatch()
     const updateQuizState = (data: QuizState) => dispatch(quizCreator(data))
     const classes = useStyles();
-    const [questionId, setQuestionId] = useState<string>('102')
+    //const [questionId, setQuestionId] = useState<string>('102')
     const [resultComment, setResultComment] = useState<string>('')
     const [answer, setAnswer] = useState<string>('')
-    const [question, setQuestion] = useState<Question>({ id: '-1', title: 'test', correctAnswer: 0, correctAnswers:0 })
+    const [question, setQuestion] = useState<Question>({ id: '-1', title: 'test', correctAnswer: '0', correctAnswers:0 })
     const [isLoading, setIsLoading] = useState<boolean>(true)
     const [isCorrect, setIsCorrect] = useState<boolean>(false)
     const [isHelp, setIsHelp] = useState<boolean>(false)
@@ -116,9 +116,10 @@ const QuestionPage: React.FC<historyProps>= (props : historyProps) => {
     }
     const checkAnswer = () => {
 
-        if (parseInt(answer) == question.correctAnswer) {
+        if (answer === question.correctAnswer) {
             console.log("正解！")
             console.log(question.id)
+            setResultComment("正解！　次の問題に進もう！")
             setIsCorrect(true);
             setOpen(true);
             fireStore.collection(questionIndex).doc(question.id).get().then(
@@ -195,7 +196,7 @@ const QuestionPage: React.FC<historyProps>= (props : historyProps) => {
                         <Button onClick={handleClose} color="primary">
                             戻る
                         </Button>
-                        <Button onClick={handleClose} disabled={!isCorrect} color="primary">
+                        <Button onClick={() => props.history.push('/class')} disabled={!isCorrect} color="primary">
                             次へ進む
                         </Button>
                     </DialogActions>
