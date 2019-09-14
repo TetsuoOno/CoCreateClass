@@ -7,23 +7,56 @@ import Button from '@material-ui/core/Button';
 import { fireStore, classIndex } from '../firebase/firebase';
 import { Course} from '../types/type'
 import { firestore } from 'firebase';
+import '../style.css';
 
 import { makeStyles } from '@material-ui/core/styles';
-import clsx from 'clsx';
 import Card from '@material-ui/core/Card';
-import CardHeader from '@material-ui/core/CardHeader';
-import CardMedia from '@material-ui/core/CardMedia';
-import CardContent from '@material-ui/core/CardContent';
+import CardActionArea from '@material-ui/core/CardActionArea';
 import CardActions from '@material-ui/core/CardActions';
-import Collapse from '@material-ui/core/Collapse';
-import Avatar from '@material-ui/core/Avatar';
-import IconButton from '@material-ui/core/IconButton';
+import CardContent from '@material-ui/core/CardContent';
+import CardMedia from '@material-ui/core/CardMedia';
 import Typography from '@material-ui/core/Typography';
-import { red } from '@material-ui/core/colors';
-import FavoriteIcon from '@material-ui/icons/Favorite';
-import ShareIcon from '@material-ui/icons/Share';
-import ExpandMoreIcon from '@material-ui/icons/ExpandMore';
-import MoreVertIcon from '@material-ui/icons/MoreVert';
+
+const useStyles = makeStyles({
+  card: {
+    maxWidth: 345,
+  },
+  media: {
+    height: 140,
+  },
+});
+
+export function MediaCard() {
+  const classes = useStyles();
+
+  return (
+    <Card className={classes.card}>
+      <CardActionArea>
+        <CardMedia
+          className={classes.media}
+          image="https://4.bp.blogspot.com/-71vHIF5LDZw/UZNyH5JxFwI/AAAAAAAAShU/3-Fqt0ko-cE/s400/syougatsu_tsurukame.png"
+          title="Contemplative Reptile"
+        />
+        <CardContent>
+          <Typography gutterBottom variant="h5" component="h2">
+            つるとかめが合わせて18匹います。足の本数が合計50本のとき、つるは何匹でしょう
+          </Typography>
+          <Typography variant="body2" color="textSecondary" component="p">
+            
+          </Typography>
+        </CardContent>
+      </CardActionArea>
+      <CardActions>
+        <Button size="small" color="primary">
+          Share
+        </Button>
+        <Button size="small" color="primary">
+          Learn More
+        </Button>
+      </CardActions>
+    </Card>
+  );
+}
 
 type historyProps = RouteComponentProps
 
@@ -47,7 +80,7 @@ const Class: React.FC<historyProps> = (props) => {
             },
             {
                 questionNumber: 2,
-                questionTitle: "時速",
+                questionTitle: "速さ",
                 questionID: "102",
                 collectAnswers: 0                
 
@@ -74,10 +107,14 @@ const Class: React.FC<historyProps> = (props) => {
             <h3>{classData.classTime}</h3>
             <h2>{classData.questionName}</h2>
             {classData.questions.map(d => 
-                <button onClick={() => props.history.push("/question/" + d.questionID)}>
-                    <p>問{d.questionID}</p> <p>{d.questionTitle}</p>
-                </button>
+                <div className="hoge">
+                    <button onClick={() => props.history.push("/question/" + d.questionID)}>
+                        <p>問{d.questionID}</p> <p>{d.questionTitle}</p>
+                    </button>
+                </div>
+                
             )}
+        
         </div>
     )
 }
