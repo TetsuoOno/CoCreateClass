@@ -18,18 +18,19 @@ const Class: React.FC<historyProps> = (props) => {
         classDate: '２時間目',
         classTime: '10:00 - 10:50',
         questionName: '算数２',
+        studentNumber: 0,
         questions: [
             {
                 questionNumber: 1,
                 questionTitle: "つるかめ",
                 questionID: "101",
-                likes: 0,
+                collectAnswers: 0                
             },
             {
                 questionNumber: 2,
-                questionTitle: "微積",
+                questionTitle: "時速",
                 questionID: "102",
-                likes:0
+                collectAnswers: 0                
 
             }
         ]
@@ -42,9 +43,6 @@ const Class: React.FC<historyProps> = (props) => {
             setIsLoading(true)
         })
     }
-    
-
-    
 
     if(userData.userName === ''){
         console.log('user is not logged in')

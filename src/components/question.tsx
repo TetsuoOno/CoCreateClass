@@ -4,9 +4,14 @@ import Typography from '@material-ui/core/Typography';
 import Container from '@material-ui/core/Container';
 import Button from '@material-ui/core/Button';
 import { makeStyles } from '@material-ui/core/styles';
-import { fireStore, questionIndex } from '../firebase/firebase';
-import { Question } from '../types/type';
+import { fireStore, questionIndex, classIndex } from '../firebase/firebase';
+import { Question, QuizState, Course } from '../types/type';
 import Indicator from './Indicatior';
+import { RouteComponentProps } from 'react-router';
+import { AppState } from '../store';
+import { useSelector, useDispatch } from 'react-redux';
+import { quizCreator } from '../actions/action';
+
 
 const useStyles = makeStyles(theme => ({
     '@global': {
@@ -37,44 +42,76 @@ const useStyles = makeStyles(theme => ({
 }));
 
 
-const QuestionPage: React.FC = () => {
+type historyProps = RouteComponentProps<{questionId: string}>
+const QuestionPage: React.FC<historyProps>= (props : historyProps) => {
+    const classData = {
+        className: '５年３組',
+        classDate: '２時間目',
+        classTime: '10:00 - 10:50',
+        questionName: '算数２',
+        questions: [
+            {
+                questionNumber: 1,
+                questionTitle: "つるかめ",
+                questionID: "101",
+                
+            },
+            {
+                questionNumber: 2,
+                questionTitle: "微積",
+                questionID: "102",
+                likes:0
+
+            }
+        ]
+    }
+
+    const questionId = props.match.params.questionId
+    const quizState = useSelector((state:AppState) => state.quizState)
+    const dispatch = useDispatch()
+    const updateQuizState = (data: QuizState) => dispatch(quizCreator(data))
     const classes = useStyles();
-    const [questionId, setQuestionId] = useState<string>('102')
     const [answer, setAnswer] = useState<string>('')
-    const [question, setQuestion] = useState<Question>({ id: '-1', title: 'test', correctAnswer: 0 })
+    const [question, setQuestion] = useState<Question>({ id: '-1', title: 'test', correctAnswer: 0, correctAnswers:0 })
     const [isLoading, setIsLoading] = useState<boolean>(true)
     const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         setAnswer(e.target.value)
     }
 
-    const getQuestions = () => {
+    const getQuestions = (questionId: string) => {
         fireStore.collection(questionIndex).doc(questionId).get().then(doc => {
+            const questionData = doc.data() as Question
             if (doc.exists) {
-                const questionData = doc.data() as Question
-                console.log('Got question、', questionData.title)
+                console.log('Got question、', questionData.title, questionData.correctAnswer)
                 setQuestion(Object.assign({}, questionData))
                 setIsLoading(false)
             } else {
-                const questionData: Question = {
-                    id: questionId,
-                    title: "朝は４本足、昼は２本足、夜は３本足の２次関数での近似値を答えよ",
-                    correctAnswer: 0
-                }
-                fireStore.collection(questionIndex).doc(questionData.id).set(questionData).catch(e => console.error(e))
                 console.log('quetion not found')
             }
         }).catch(err => console.error(err))
     }
     const checkAnswer = () => {
-        if (parseFloat(answer) === question.correctAnswer) {
+        console.log(parseInt(answer) == question.correctAnswer)
+        if (parseInt(answer) == question.correctAnswer) {
             console.log("正解！")
+            console.log(question.id)
+            fireStore.collection(questionIndex).doc(question.id).get().then(
+                doc => {
+                    const data = doc.data() as Question
+                    console.log(data)
+                    data.correctAnswers++
+                    fireStore.collection(questionIndex).doc(question.id).set(data)
+                })
+            //     }
+            .then(() => props.history.push('/class')
+             )
         } else {
             console.log("間違い")
         }
 
     };
     if (isLoading) {
-        getQuestions();
+        getQuestions(questionId);
     }
     return (
         <Container component="main" maxWidth="xs">
