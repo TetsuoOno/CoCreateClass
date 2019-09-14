@@ -3,10 +3,17 @@ export type User = {
     userName: string;
 }
 
-export type course = {
-    id: string;
-    users: User[];
-    questions: Question[];
+export type  Course = {
+    className: string,
+    classDate: string,
+    classTime: string,
+    questionName: string,
+    questions: {
+        questionNumber: number,
+        questionID: string,
+        questionTitle: string,
+        likes: 0
+    }[]
 }
 
 export type Question = {

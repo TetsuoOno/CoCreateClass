@@ -17,7 +17,9 @@ import { auth, fireStore, userIndex } from '../firebase/firebase';
 import { User } from '../types/type';
 import { loginCreator } from '../actions/action';
 import { AppState } from '../store';
+import { RouteComponentProps, withRouter } from 'react-router';
 
+type historyProps = RouteComponentProps
 const useStyles = makeStyles(theme => ({
     '@global': {
       body: {
@@ -44,7 +46,7 @@ const useStyles = makeStyles(theme => ({
   }));
   
   
-const Login: React.FC = () => {
+const Login: React.FC<historyProps> = props => {
     const classes = useStyles();
     let userData = useSelector((state:AppState) => state.userState)
     console.log(userData)
@@ -61,6 +63,7 @@ const Login: React.FC = () => {
                 if(doc.exists){
                     const userData = doc.data() as User
                     console.log('こんにちは、', userData.userName)
+                    login(userData)
                 }else{
                     const userData : User = {
                         userID: user.uid,
@@ -70,6 +73,7 @@ const Login: React.FC = () => {
                     ).catch(e => console.error(e))
                     login(userData)
                 }
+                props.history.push('/class')
             })
         }).catch(err=>console.error(err))
     }
@@ -134,4 +138,4 @@ const Login: React.FC = () => {
     )
 }
 
-export default Login
+export default withRouter<historyProps, React.FC<historyProps>>(Login)
