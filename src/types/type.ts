@@ -12,6 +12,7 @@ export type  Course = {
         questionNumber: number,
         questionID: string,
         questionTitle: string,
+        likes: 0
     }[]
 }
 
