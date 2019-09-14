@@ -3,8 +3,9 @@ import TextField from '@material-ui/core/TextField';
 import Typography from '@material-ui/core/Typography';
 import Container from '@material-ui/core/Container';
 import { makeStyles } from '@material-ui/core/styles';
-import { auth, fireStore, questionIndex } from '../firebase/firebase';
+import { fireStore, questionIndex } from '../firebase/firebase';
 import { Question } from '../types/type';
+import Indicator from './Indicatior';
 
 const useStyles = makeStyles(theme => ({
     '@global': {
@@ -35,6 +36,8 @@ const useStyles = makeStyles(theme => ({
 const QuestionPage: React.FC = () => {
     const classes = useStyles();
     const [answer, setAnswer] = useState<string>('')
+    const [question, setQuestion] = useState<Question>({id:'-1',title:'test'})
+    const [isLoading, setIsLoading] = useState<boolean>(false)
     const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         setAnswer(e.target.value)
     }
@@ -43,27 +46,31 @@ const QuestionPage: React.FC = () => {
             if (doc.exists) {
                 const questionData = doc.data() as Question
                 console.log('Got question、', questionData.title)
+                setQuestion(Object.assign({},questionData))
+                setIsLoading(true)
             } else {
                 const questionData: Question = {
                     id: "101",
                     title: "test",
                 }
                 fireStore.collection(questionIndex).doc(questionData.id).set(questionData).catch(e => console.error(e))
-
                 console.log('quetion not found')
             }
         }).catch(err => console.error(err))
     };
-    getQuestions();
+    if(isLoading){
+        getQuestions();
+    }
     return (
         <Container component="main" maxWidth="xs">
-
             <div className="App">
-                <header className="App-header">
-                    <p>
-                        TBD: show question and some buttons
-                </p>
-                </header>
+                {!isLoading?
+                    <div>
+                        <p>{question.id}</p>
+                        <p>{question.title}</p>
+                    </div>:
+                    <Indicator />
+                }
                 <Typography component="h1" variant="h5">
                     Sign in
             </Typography>
