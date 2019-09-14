@@ -5,12 +5,21 @@ import App from './App';
 import * as serviceWorker from './serviceWorker';
 import { Router } from 'react-router-dom';
 import { createBrowserHistory as createHistory } from 'history'
- 
+import { Provider } from 'react-redux'
+import store from './store';
+import { PersistGate } from 'redux-persist/integration/react';
+import { persistor } from './store';
+
+
 const history = createHistory()
 ReactDOM.render(
-    <Router history={history}>
-        <App />
-    </Router>, document.getElementById('root'));
+    <Provider store={store}>
+        <PersistGate loading={null} persistor={persistor}>
+            <Router history={history}>
+                <App />
+            </Router>
+        </PersistGate>
+    </Provider>, document.getElementById('root'));
 
 // If you want your app to work offline and load faster, you can change
 // unregister() to register() below. Note this comes with some pitfalls.

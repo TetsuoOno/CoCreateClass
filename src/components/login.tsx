@@ -1,4 +1,5 @@
 import React, {useState}from 'react';
+import {useSelector, useDispatch} from 'react-redux'
 
 import Avatar from '@material-ui/core/Avatar';
 import Button from '@material-ui/core/Button';
@@ -14,6 +15,8 @@ import { makeStyles } from '@material-ui/core/styles';
 import Container from '@material-ui/core/Container';
 import { auth, fireStore, userIndex } from '../firebase/firebase';
 import { User } from '../types/type';
+import { loginCreator } from '../actions/action';
+import { AppState } from '../store';
 
 const useStyles = makeStyles(theme => ({
     '@global': {
@@ -43,6 +46,10 @@ const useStyles = makeStyles(theme => ({
   
 const Login: React.FC = () => {
     const classes = useStyles();
+    let userData = useSelector((state:AppState) => state.userState)
+    console.log(userData)
+    const dispatch = useDispatch()
+    const login = (data:User) => dispatch(loginCreator(data))
     const [name, setName] = useState<string>('')
     const handleChange = (e:React.ChangeEvent<HTMLInputElement> ) => {
         setName(e.target.value)
@@ -59,7 +66,9 @@ const Login: React.FC = () => {
                         userID: user.uid,
                         userName: name,
                     }
-                    fireStore.collection('users').doc(user.uid).set(userData).catch(e => console.error(e))
+                    fireStore.collection('users').doc(user.uid).set(userData).then(() => console.log('こんにちは、', userData.userName)
+                    ).catch(e => console.error(e))
+                    login(userData)
                 }
             })
         }).catch(err=>console.error(err))
