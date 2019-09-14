@@ -1,12 +1,23 @@
 import React, { useState } from 'react'
+import PropTypes from 'prop-types';
 import TextField from '@material-ui/core/TextField';
 import Typography from '@material-ui/core/Typography';
 import Container from '@material-ui/core/Container';
 import Button from '@material-ui/core/Button';
+import DialogTitle from '@material-ui/core/DialogTitle';
+import Dialog from '@material-ui/core/Dialog';
+import DialogActions from '@material-ui/core/DialogActions';
+import DialogContent from '@material-ui/core/DialogContent';
+import DialogContentText from '@material-ui/core/DialogContentText';
+import Slide from '@material-ui/core/Slide';
+
 import { makeStyles } from '@material-ui/core/styles';
 import { fireStore, questionIndex } from '../firebase/firebase';
 import { Question } from '../types/type';
 import Indicator from './Indicatior';
+const Transition = React.forwardRef(function Transition(props, ref) {
+    return <Slide direction="up" ref={ref} {...props} />;
+});
 
 const useStyles = makeStyles(theme => ({
     '@global': {
@@ -40,11 +51,22 @@ const useStyles = makeStyles(theme => ({
 const QuestionPage: React.FC = () => {
     const classes = useStyles();
     const [questionId, setQuestionId] = useState<string>('102')
+    const [resultComment, setResultComment] = useState<string>('')
     const [answer, setAnswer] = useState<string>('')
-    const [question, setQuestion] = useState<Question>({ id: '-1', title: 'test', correctAnswer: 0 })
+    const [question, setQuestion] = useState<Question>({ id: '-1', title: 'test', correctAnswer: '0' })
     const [isLoading, setIsLoading] = useState<boolean>(true)
+    const [isCorrect, setIsCorrect] = useState<boolean>(false)
+    const [isHelp, setIsHelp] = useState<boolean>(false)
     const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         setAnswer(e.target.value)
+    }
+    const [open, setOpen] = React.useState(false);
+
+    function handleClose() {
+        setOpen(false);
+    }
+    function handleHelp() {
+        setIsHelp(true);
     }
 
     const getQuestions = () => {
@@ -55,21 +77,21 @@ const QuestionPage: React.FC = () => {
                 setQuestion(Object.assign({}, questionData))
                 setIsLoading(false)
             } else {
-                const questionData: Question = {
-                    id: questionId,
-                    title: "朝は４本足、昼は２本足、夜は３本足の２次関数での近似値を答えよ",
-                    correctAnswer: 0
-                }
-                fireStore.collection(questionIndex).doc(questionData.id).set(questionData).catch(e => console.error(e))
                 console.log('quetion not found')
             }
         }).catch(err => console.error(err))
     }
     const checkAnswer = () => {
-        if (parseFloat(answer) === question.correctAnswer) {
-            console.log("正解！")
+        if (parseFloat(answer) === parseFloat(question.correctAnswer)) {
+            setResultComment("正解！　次の問題も頑張ろう！")
+            setIsCorrect(true);
+            setOpen(true);
+
         } else {
-            console.log("間違い")
+            setResultComment("残念　もう一度見直してみよう！")
+            setIsCorrect(false);
+            setOpen(true);
+
         }
 
     };
@@ -112,7 +134,29 @@ const QuestionPage: React.FC = () => {
                 >
                     回答
                 </Button>
-                <Button color="secondary" className={classes.button}>
+                <Dialog
+                    open={open}
+                    keepMounted
+                    onClose={handleClose}
+                    aria-labelledby="alert-dialog-slide-title"
+                    aria-describedby="alert-dialog-slide-description"
+                >
+                    <DialogTitle id="alert-dialog-slide-title">{"結果"}</DialogTitle>
+                    <DialogContent>
+                        <DialogContentText id="alert-dialog-slide-description">
+                            <p>{resultComment}</p>
+                        </DialogContentText>
+                    </DialogContent>
+                    <DialogActions>
+                        <Button onClick={handleClose} color="primary">
+                            戻る
+                        </Button>
+                        <Button onClick={handleClose} disabled={!isCorrect} color="primary">
+                            次へ進む
+                        </Button>
+                    </DialogActions>
+                </Dialog>
+                <Button color="secondary" onClick={handleHelp} className={classes.button}>
                     ヘルプ！
                 </Button>
             </div>
