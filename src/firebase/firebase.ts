@@ -8,3 +8,4 @@ export const auth = firebase.auth()
 export const questionIndex = "questions"
 export const userIndex = "users"
 export const classIndex = "course"
+export const hintIndex = "hints"

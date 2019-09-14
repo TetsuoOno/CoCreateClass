@@ -25,8 +25,13 @@ export type Question = {
 }
 
 export type QuizState = {
-    questions:{
+    questions: {
         questionNumber: number,
         isCollect: boolean
     }[]
+}
+
+export type Hint = {
+    questionId: string,
+    hints: string[]
 }

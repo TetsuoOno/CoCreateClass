@@ -10,10 +10,11 @@ import DialogActions from '@material-ui/core/DialogActions';
 import DialogContent from '@material-ui/core/DialogContent';
 import DialogContentText from '@material-ui/core/DialogContentText';
 import Slide from '@material-ui/core/Slide';
+import { List, ListItem, ListItemText, Select } from '@material-ui/core';
 
 import { makeStyles } from '@material-ui/core/styles';
-import { fireStore, questionIndex, classIndex } from '../firebase/firebase';
-import { Question, QuizState, Course } from '../types/type';
+import { fireStore, questionIndex, classIndex, hintIndex } from '../firebase/firebase';
+import { Question, QuizState, Course, Hint } from '../types/type';
 import Indicator from './Indicatior';
 
 import { RouteComponentProps } from 'react-router';
@@ -54,8 +55,8 @@ const useStyles = makeStyles(theme => ({
 }));
 
 
-type historyProps = RouteComponentProps<{questionId: string}>
-const QuestionPage: React.FC<historyProps>= (props : historyProps) => {
+type historyProps = RouteComponentProps<{ questionId: string }>
+const QuestionPage: React.FC<historyProps> = (props: historyProps) => {
     const classData = {
         className: '５年３組',
         classDate: '２時間目',
@@ -66,27 +67,28 @@ const QuestionPage: React.FC<historyProps>= (props : historyProps) => {
                 questionNumber: 1,
                 questionTitle: "つるかめ",
                 questionID: "101",
-                
+
             },
             {
                 questionNumber: 2,
                 questionTitle: "微積",
                 questionID: "102",
-                likes:0
+                likes: 0
 
             }
         ]
     }
 
     const questionId = props.match.params.questionId
-    const quizState = useSelector((state:AppState) => state.quizState)
+    const quizState = useSelector((state: AppState) => state.quizState)
     const dispatch = useDispatch()
     const updateQuizState = (data: QuizState) => dispatch(quizCreator(data))
     const classes = useStyles();
     //const [questionId, setQuestionId] = useState<string>('102')
     const [resultComment, setResultComment] = useState<string>('')
     const [answer, setAnswer] = useState<string>('')
-    const [question, setQuestion] = useState<Question>({ id: '-1', title: 'test', correctAnswer: '0', correctAnswers:0 })
+    const [question, setQuestion] = useState<Question>({ id: '-1', title: 'test', correctAnswer: '0', correctAnswers: 0 })
+    const [hints, setHints] = useState<Hint>()
     const [isLoading, setIsLoading] = useState<boolean>(true)
     const [isCorrect, setIsCorrect] = useState<boolean>(false)
     const [isHelp, setIsHelp] = useState<boolean>(false)
@@ -114,6 +116,17 @@ const QuestionPage: React.FC<historyProps>= (props : historyProps) => {
             }
         }).catch(err => console.error(err))
     }
+    const getHints = (questionId: string) => {
+        fireStore.collection(hintIndex).doc(questionId).get().then(doc => {
+            const hintData = doc.data() as Hint
+            if (doc.exists) {
+                console.log('Got Hint、', hintData.hints)
+                setHints(Object.assign({}, hintData))
+            } else {
+                console.log('Hint not found')
+            }
+        }).catch(err => console.error(err))
+    }
     const checkAnswer = () => {
 
         if (answer === question.correctAnswer) {
@@ -130,8 +143,8 @@ const QuestionPage: React.FC<historyProps>= (props : historyProps) => {
                     fireStore.collection(questionIndex).doc(question.id).set(data)
                 })
             //     }
-            
-             
+
+
         } else {
             setResultComment("残念　もう一度見直してみよう！")
             setIsCorrect(false);
@@ -142,6 +155,7 @@ const QuestionPage: React.FC<historyProps>= (props : historyProps) => {
     };
     if (isLoading) {
         getQuestions(questionId);
+        getHints(questionId);
     }
     return (
         <Container component="main" maxWidth="xs">
@@ -155,6 +169,8 @@ const QuestionPage: React.FC<historyProps>= (props : historyProps) => {
                         <Indicator />
                     }
                 </Typography>
+
+
                 <form className={classes.form} noValidate>
                     <TextField
                         variant="outlined"
@@ -205,7 +221,7 @@ const QuestionPage: React.FC<historyProps>= (props : historyProps) => {
                     ヘルプ！
                 </Button>
             </div>
-        </Container>
+        </Container >
     );
 }
 
