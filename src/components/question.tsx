@@ -12,9 +12,15 @@ import DialogContentText from '@material-ui/core/DialogContentText';
 import Slide from '@material-ui/core/Slide';
 
 import { makeStyles } from '@material-ui/core/styles';
-import { fireStore, questionIndex } from '../firebase/firebase';
-import { Question } from '../types/type';
+import { fireStore, questionIndex, classIndex } from '../firebase/firebase';
+import { Question, QuizState, Course } from '../types/type';
 import Indicator from './Indicatior';
+
+import { RouteComponentProps } from 'react-router';
+import { AppState } from '../store';
+import { useSelector, useDispatch } from 'react-redux';
+import { quizCreator } from '../actions/action';
+
 const Transition = React.forwardRef(function Transition(props, ref) {
     return <Slide direction="up" ref={ref} {...props} />;
 });
@@ -48,12 +54,39 @@ const useStyles = makeStyles(theme => ({
 }));
 
 
-const QuestionPage: React.FC = () => {
+type historyProps = RouteComponentProps<{questionId: string}>
+const QuestionPage: React.FC<historyProps>= (props : historyProps) => {
+    const classData = {
+        className: '５年３組',
+        classDate: '２時間目',
+        classTime: '10:00 - 10:50',
+        questionName: '算数２',
+        questions: [
+            {
+                questionNumber: 1,
+                questionTitle: "つるかめ",
+                questionID: "101",
+                
+            },
+            {
+                questionNumber: 2,
+                questionTitle: "微積",
+                questionID: "102",
+                likes:0
+
+            }
+        ]
+    }
+
+    const questionId = props.match.params.questionId
+    const quizState = useSelector((state:AppState) => state.quizState)
+    const dispatch = useDispatch()
+    const updateQuizState = (data: QuizState) => dispatch(quizCreator(data))
     const classes = useStyles();
     const [questionId, setQuestionId] = useState<string>('102')
     const [resultComment, setResultComment] = useState<string>('')
     const [answer, setAnswer] = useState<string>('')
-    const [question, setQuestion] = useState<Question>({ id: '-1', title: 'test', correctAnswer: '0' })
+    const [question, setQuestion] = useState<Question>({ id: '-1', title: 'test', correctAnswer: 0, correctAnswers:0 })
     const [isLoading, setIsLoading] = useState<boolean>(true)
     const [isCorrect, setIsCorrect] = useState<boolean>(false)
     const [isHelp, setIsHelp] = useState<boolean>(false)
@@ -69,11 +102,11 @@ const QuestionPage: React.FC = () => {
         setIsHelp(true);
     }
 
-    const getQuestions = () => {
+    const getQuestions = (questionId: string) => {
         fireStore.collection(questionIndex).doc(questionId).get().then(doc => {
+            const questionData = doc.data() as Question
             if (doc.exists) {
-                const questionData = doc.data() as Question
-                console.log('Got question、', questionData.title)
+                console.log('Got question、', questionData.title, questionData.correctAnswer)
                 setQuestion(Object.assign({}, questionData))
                 setIsLoading(false)
             } else {
@@ -82,10 +115,22 @@ const QuestionPage: React.FC = () => {
         }).catch(err => console.error(err))
     }
     const checkAnswer = () => {
-        if (parseFloat(answer) === parseFloat(question.correctAnswer)) {
-            setResultComment("正解！　次の問題も頑張ろう！")
+
+        if (parseInt(answer) == question.correctAnswer) {
+            console.log("正解！")
+            console.log(question.id)
             setIsCorrect(true);
             setOpen(true);
+            fireStore.collection(questionIndex).doc(question.id).get().then(
+                doc => {
+                    const data = doc.data() as Question
+                    console.log(data)
+                    data.correctAnswers++
+                    fireStore.collection(questionIndex).doc(question.id).set(data)
+                })
+            //     }
+            
+             
         } else {
             setResultComment("残念　もう一度見直してみよう！")
             setIsCorrect(false);
@@ -95,7 +140,7 @@ const QuestionPage: React.FC = () => {
 
     };
     if (isLoading) {
-        getQuestions();
+        getQuestions(questionId);
     }
     return (
         <Container component="main" maxWidth="xs">
