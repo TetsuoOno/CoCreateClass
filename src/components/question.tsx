@@ -148,8 +148,10 @@ const QuestionPage: React.FC<historyProps>= (props : historyProps) => {
             <div className="App">
                 <Typography component="h1" variant="h5">
                     問題
+                   
                     {!isLoading ?
                         <div>
+                             <p>正解数: {question.correctAnswers}</p>
                             <p>{question.title}</p>
                         </div> :
                         <Indicator />
